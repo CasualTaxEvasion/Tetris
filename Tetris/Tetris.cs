@@ -4,11 +4,9 @@ using System.Timers;
 
 namespace Tetris
 {
-    //Removing blocks can be simplified with bitshifting
-    //Only update blocks that have changed
-    //Change the way the game is updated
-    //Fix input
-    //Create difficulty curve
+    //Streamline input
+    //Create proper configurable difficulty curve
+    //Change the way ticks work
     public class Tetris : IDisposable
     {
         const int SINGLE_POINTS = 40;
@@ -293,7 +291,7 @@ namespace Tetris
         public void Dispose()
         {
             timer.Dispose();
-            GC.SuppressFinalize(this);
+            //GC.SuppressFinalize(this);
         }
 
         public CellType[,] Cells { get; private set; }
@@ -344,10 +342,7 @@ namespace Tetris
         public GameState GameState { get; private set; }
 
 
-        //Mirrored
-
-
-        // 4 4321
+        //X is Mirrored, Y is not
         private static readonly int[][] pieces = new int[][]
             {
             //I 

@@ -1,4 +1,5 @@
-﻿using System.Timers;
+﻿using System.Diagnostics;
+using System.Timers;
 
 namespace Tetris
 {
@@ -31,27 +32,27 @@ namespace Tetris
         private Queue<Input> inputQueue = new Queue<Input>();
         private void Control(Input input)
         {
-            if(GameState == GameState.Active)
-            switch (input)
-            {
-                case Input.Rotate:
-                    Rotate();
-                    break;
-                case Input.MoveLeft:
-                    Move(-1, true);
-                    break;
-                case Input.MoveRight:
-                    Move(1, true);
-                    break;
-                case Input.Place:
-                    Move(-100, false);
-                    break;
-                case Input.MoveDown:
-                    Move(-1, false);
-                    break;
-                default:
-                    break;
-            }
+            if (GameState == GameState.Active)
+                switch (input)
+                {
+                    case Input.Rotate:
+                        Rotate();
+                        break;
+                    case Input.MoveLeft:
+                        Move(-1, true);
+                        break;
+                    case Input.MoveRight:
+                        Move(1, true);
+                        break;
+                    case Input.Place:
+                        Move(-100, false);
+                        break;
+                    case Input.MoveDown:
+                        Move(-1, false);
+                        break;
+                    default:
+                        break;
+                }
         }
 
         public void SendInput(Input input) => inputQueue.Enqueue(input);
@@ -63,7 +64,7 @@ namespace Tetris
             if (GameState != GameState.Active)
                 return;
 
-            if(inputQueue.Count > 0)
+            if (inputQueue.Count > 0)
             {
                 while (inputQueue.Count > 0)
                 {
@@ -97,8 +98,6 @@ namespace Tetris
 
         private void Move(int move, bool horizontal)
         {
-            Console.WriteLine("Moving");
-
             int moveX = 0;
             int moveY = 0;
 
@@ -108,13 +107,11 @@ namespace Tetris
             if (horizontal)
                 moveX = move;
             else moveY = move;
-                
+
             for (int i = 0; i < moveCount; i++)
             {
                 if (Cast(ActivePieceType, ActiveRotation, ActiveX + moveX, ActiveY + moveY))
                 {
-                    Console.WriteLine("Collission detected");
-
                     if (!horizontal)
                     {
                         LockActivePiece();
@@ -138,7 +135,7 @@ namespace Tetris
             int newRotation = ActiveRotation - 1;
 
             if (newRotation < 0)
-                newRotation = pieces[ActivePieceType].Length -1;
+                newRotation = pieces[ActivePieceType].Length - 1;
 
             if (!Cast(ActivePieceType, newRotation, ActiveX, ActiveY))
             {
@@ -153,24 +150,24 @@ namespace Tetris
         //Checks if move is possible
         private bool Cast(int piecetype, int rotation, int Xpos, int Ypos)
         {
-            bool[] piece = pieces[piecetype][rotation];
+            int piece = pieces[piecetype][rotation];
 
             for (int y = 0; y < 4; y++)
             {
                 for (int x = 0; x < 4; x++)
                 {
                     //check if out of bounds (sides or bottom)
-                    if(y+Ypos < 0 || x+Xpos<0 || x+Xpos >= Width)
+                    if (y + Ypos < 0 || x + Xpos < 0 || x + Xpos >= Width)
                     {
-                        if (piece[4 * y + x])
+                        if ((piece & 1 << (4 * y + x)) != 0)
                             return true;
 
                         continue;
                     }
 
-                    if(y+Ypos < Heigth)
+                    if (y + Ypos < Heigth)
                     {
-                        if (piece[4 * y + x] && Cells[Xpos + x, Ypos + y] != CellType.Empty)
+                        if ((piece & 1 << (4 * y + x)) != 0 && Cells[Xpos + x, Ypos + y] != CellType.Empty)
                             return true;
                     }
                     //check if cell is occupied
@@ -188,20 +185,21 @@ namespace Tetris
             {
                 for (int x = 0; x < 4; x++)
                 {
-                    if(y + ActiveY >= Heigth)
+                    if (y + ActiveY >= Heigth)
                     {
-                        if (ActivePiece[4 * y + x])
+                        if ((ActivePiece & 1 << (4 * y + x)) != 0)
                         {
                             GameState = GameState.Lost;
+
                             continue;
                         }
                     }
 
                     if (y + ActiveY >= 0 && y + ActiveY < Heigth && x + ActiveX >= 0 && x + ActiveX < Width)
                     {
-                        if (ActivePiece[4 * y + x])
+                        if ((ActivePiece & 1 << (4 * y + x)) != 0)
                         {
-                            Cells[x+ActiveX, y+ActiveY] = (CellType)ActivePieceType+1;
+                            Cells[x + ActiveX, y + ActiveY] = (CellType)ActivePieceType + 1;
                         }
                     }
                 }
@@ -215,7 +213,7 @@ namespace Tetris
             ActiveX = Width / 2 - 2;
             ActiveY = Heigth;
             ActiveRotation = 0;
-            ActivePieceType = new Random().Next(0,7);
+            ActivePieceType = new Random().Next(0, 7);
         }
 
         //checks if any lines are complete and removes them and moves down the rest
@@ -255,11 +253,11 @@ namespace Tetris
             toRemove.Reverse();
             foreach (var index in toRemove)
             {
-                for (int y = index; y < Heigth-1; y++)
+                for (int y = index; y < Heigth - 1; y++)
                 {
                     for (int x = 0; x < Width; x++)
                     {
-                        Cells[x, y] = Cells[x, y+1];
+                        Cells[x, y] = Cells[x, y + 1];
                     }
                 }
             }
@@ -310,8 +308,8 @@ namespace Tetris
                     {
                         if (y + ActiveY >= 0 && y + ActiveY < Heigth && x + ActiveX >= 0 && x + ActiveX < Width)
                         {
-                            if (ActivePiece[4 * y + x])
-                                _return[x + ActiveX, y + ActiveY] = (CellType)Enum.ToObject(typeof(CellType), ActivePieceType + 1);
+                            if ((ActivePiece & 1 << (4 * y + x)) != 0)
+                                _return[x + ActiveX, y + ActiveY] = (CellType)ActivePieceType + 1;
                         }
                     }
                 }
@@ -333,186 +331,59 @@ namespace Tetris
         public int ActivePieceType { get; private set; }
         public int ActiveRotation { get; private set; }
 
-        public bool[] ActivePiece => pieces[ActivePieceType][ActiveRotation];
-
+        public int ActivePiece => pieces[ActivePieceType][ActiveRotation];
         public GameState GameState { get; private set; }
 
-        private static readonly bool[][][] pieces = new bool[][][]
-       {
-            //I
-            new bool[][]
+        private static readonly int[][] pieces = new int[][]
             {
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,false,false,false,
-                    true,true,true,true,
-                    false,false,false,false
-                },
-                new bool[]
-                {
-                    false,false,true,false,
-                    false,false,true,false,
-                    false,false,true,false,
-                    false,false,true,false
-                }
-            },
-
-            //O
-            new bool[][]
+            //I x
+            new int[]
             {
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,true,true,false,
-                    false,true,true,false,
-                    false,false,false,false
-                },
+                0B_0000_0000_1111_0000,
+                0B_0010_0010_0010_0010,
             },
-
-            //J
-            new bool[][]
+            //O x
+            new int[]
             {
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,false,false,false,
-                    true,true,true,false,
-                    false,false,true,false
-                },
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,true,false,false,
-                    false,true,false,false,
-                    true,true,false,false
-                },
-
-                new bool[]
-                {
-                    false,false,false,false,
-                    true,false,false,false,
-                    true,true,true,false,
-                    false,false,false,false
-                },
-
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,true,true,false,
-                    false,true,false,false,
-                    false,true,false,false
-                }
-
+                0B_0000_0110_0110_0000,
             },
-
-            //L
-            new bool[][]
+            //J x
+            new int[]
             {
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,false,true,false,
-                    true,true,true,false,
-                    false,false,false,false
-                },
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,true,false,false,
-                    false,true,false,false,
-                    false,true,true,false
-                },
-
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,false,false,false,
-                    true,true,true,false,
-                    true,false,false,false
-                },
-
-                new bool[]
-                {
-                    false,false,false,false,
-                    true,true,false,false,
-                    false,true,false,false,
-                    false,true,false,false
-                }
-
+                0B_0000_0000_1110_0010,
+                0B_0000_0100_0100_1100,
+                0B_0000_1000_1110_0000,
+                0B_0000_110_0100_0100
             },
-            
+            //L x
+            new int[]
+            {
+                0B_0000_0000_1110_0010,
+                0B_0000_0100_0100_0110,
+                0B_0000_0000_1110_1000,
+                0B_0000_0110_0100_0100
+            },
             //S
-            new bool[][]
+            new int[]
             {
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,false,false,false,
-                    false,true,true,false,
-                    true,true,false,false
-                },
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,true,false,false,
-                    false,true,true,false,
-                    false,false,true,false
-                }
+                0B_0000_0000_0110_1100,
+                0B_0000_0100_0110_0010,
             },
-
             //Z
-            new bool[][]
+            new int[]
             {
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,false,false,false,
-                    true,true,false,false,
-                    false,true,true,false
-                },
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,false,true,false,
-                    false,true,true,false,
-                    false,true,false,false
-                }
+                0B_0000_0000_1100_0110,
+                0B_0000_0010_0110_0100,
             },
-
             //T
-            new bool[][]
+            new int[]
             {
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,true,false,false,
-                    true,true,true,false,
-                    false,false,false,false
-                },
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,true,false,false,
-                    false,true,true,false,
-                    false,true,false,false
-                },
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,false,false,false,
-                    true,true,true,false,
-                    false,true,false,false
-                },
-                new bool[]
-                {
-                    false,false,false,false,
-                    false,true,false,false,
-                    true,true,false,false,
-                    false,true,false,false
-                }
+                0B_0000_0000_1110_0100,
+                0B_0000_0100_1100_0100,
+                0B_0000_0100_1110_0000,
+                0B_0000_0100_0110_0100,
             },
-       };
+        };
     }
 
     public enum CellType
@@ -539,9 +410,7 @@ namespace Tetris
 
     public enum GameState
     {
-        None,
         Lost,
-        Won,
-        Active
+        Active,
     }
 }

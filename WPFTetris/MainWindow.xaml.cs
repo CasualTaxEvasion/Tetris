@@ -150,10 +150,10 @@ namespace WPFTetris
                         case CellType.O:
                             cellFill = Brushes.Yellow;
                             break;
-                        case CellType.J:
+                        case CellType.L:
                             cellFill = Brushes.Blue;
                             break;
-                        case CellType.L:
+                        case CellType.J:
                             cellFill = Brushes.Orange;
                             break;
                         case CellType.S:

@@ -40,7 +40,7 @@ namespace WPFTetris
         const int ROTA_CD = 25;
         int lastRotate = -50;
         int lastPlace = 0;
-        const int PLACE_CD = 15;
+        const int PLACE_CD = 20;
 
 
         System.Timers.Timer timer;
@@ -151,10 +151,10 @@ namespace WPFTetris
                             cellFill = Brushes.Yellow;
                             break;
                         case CellType.L:
-                            cellFill = Brushes.Blue;
+                            cellFill = Brushes.Orange;
                             break;
                         case CellType.J:
-                            cellFill = Brushes.Orange;
+                            cellFill = Brushes.Blue;
                             break;
                         case CellType.S:
                             cellFill = Brushes.Green;

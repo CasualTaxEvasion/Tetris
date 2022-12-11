@@ -1,12 +1,14 @@
 ﻿using System.Diagnostics;
+using System.Threading;
 using System.Timers;
 
 namespace Tetris
 {
-    //Finding and removing lines can be optimized
-    //general optimization
-    //difficulty curve
-    //if you move the second, the update is called, blocks can enter eachother - maybe add an instruction queue - or change the way it updates all together
+    //Removing blocks can be simplified with bitshifting
+    //Only update blocks that have changed
+    //Change the way the game is updated
+    //Fix input
+    //Create difficulty curve
     public class Tetris : IDisposable
     {
         const int SINGLE_POINTS = 40;
@@ -93,6 +95,7 @@ namespace Tetris
             Points = 0;
             OnGridUpdated?.Invoke();
             inputQueue.Clear();
+            nextPieceIndex = rnd.Next(0, 7);
             GameState = GameState.Active;
         }
 
@@ -208,12 +211,18 @@ namespace Tetris
             SpawnPiece();
         }
 
+
+        Random rnd = new Random();
+        private int nextPieceIndex;
         private void SpawnPiece()
         {
             ActiveX = Width / 2 - 2;
             ActiveY = Heigth;
             ActiveRotation = 0;
-            ActivePieceType = new Random().Next(0, 7);
+            ActivePieceType = nextPieceIndex;
+            nextPieceIndex = rnd.Next(0, 7);
+            SinceLastTick = 0;
+            timer.Start();
         }
 
         //checks if any lines are complete and removes them and moves down the rest
@@ -334,34 +343,43 @@ namespace Tetris
         public int ActivePiece => pieces[ActivePieceType][ActiveRotation];
         public GameState GameState { get; private set; }
 
+
+        //Mirrored
+
+
+        // 4 4321
         private static readonly int[][] pieces = new int[][]
             {
-            //I x
+            //I 
             new int[]
             {
                 0B_0000_0000_1111_0000,
                 0B_0010_0010_0010_0010,
             },
-            //O x
+
+            //O 
             new int[]
             {
-                0B_0000_0110_0110_0000,
+                0B_0000_0000_0110_0110,
             },
-            //J x
+
+            //L
             new int[]
             {
-                0B_0000_0000_1110_0010,
-                0B_0000_0100_0100_1100,
-                0B_0000_1000_1110_0000,
-                0B_0000_110_0100_0100
+                0B_0000_0100_0111_0000,
+                0B_0000_0011_0010_0010,
+                0B_0000_0000_0111_0001,
+                0B_0000_0010_0010_0110,
             },
-            //L x
+
+           
+            //J
             new int[]
             {
-                0B_0000_0000_1110_0010,
-                0B_0000_0100_0100_0110,
-                0B_0000_0000_1110_1000,
-                0B_0000_0110_0100_0100
+                0B_0000_0001_0111_0000,
+                0B_0000_0110_0010_0010,
+                0B_0000_0000_0111_0100,
+                0B_0000_0010_0010_0011,
             },
             //S
             new int[]
@@ -369,6 +387,7 @@ namespace Tetris
                 0B_0000_0000_0110_1100,
                 0B_0000_0100_0110_0010,
             },
+            
             //Z
             new int[]
             {
@@ -378,9 +397,9 @@ namespace Tetris
             //T
             new int[]
             {
-                0B_0000_0000_1110_0100,
-                0B_0000_0100_1100_0100,
-                0B_0000_0100_1110_0000,
+                0B_0000_0010_0111_0000,
+                0B_0000_0010_0110_0010,
+                0B_0000_0000_0111_0010,
                 0B_0000_0100_0110_0100,
             },
         };
@@ -391,8 +410,8 @@ namespace Tetris
         Empty,
         I,
         O,
-        J,
         L,
+        J,
         S,
         Z,
         T

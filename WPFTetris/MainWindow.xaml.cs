@@ -231,11 +231,19 @@ namespace WPFTetris
                     lastPlace = tick - PLACE_CD;
                     placing = false;
                     break;
+                case Key.Escape:
+                    Close();
+                    break;
                 default:
                     break;
             }
 
             base.OnKeyUp(e);
+        }
+
+        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DragMove();
         }
     }
 }

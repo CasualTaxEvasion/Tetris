@@ -5,23 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFTetris"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" ResizeMode="CanResizeWithGrip">
+        Title="MainWindow" Height="450" Width="500" ResizeMode="CanResizeWithGrip" AllowsTransparency="True" Background="Transparent" WindowStyle="None">
 
-    <Grid Background="DimGray">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
+    <Border Background="White" CornerRadius="10" MouseLeftButtonDown="Border_MouseLeftButtonDown">
+        <Grid Margin="20,20,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <Viewbox Name="TetrisViewBox" Stretch="Uniform" Grid.Column="0" Grid.Row="0" Margin="20" HorizontalAlignment="Left">
-            <Grid x:Name="TetrisGrid" Background= "Black">
-            </Grid>
-        </Viewbox>
+            <Border  Grid.Column="0" Grid.Row="0" BorderBrush="Black" BorderThickness="5" CornerRadius="10">
+                <Viewbox Name="TetrisViewBox" Stretch="Uniform">
+                    <Grid x:Name="TetrisGrid" Background= "Black">
+                    </Grid>
+                </Viewbox>
+            </Border>
 
-        <StackPanel Grid.Column="1">
-            <TextBlock FontSize="50" HorizontalAlignment="Center">Points</TextBlock>
-            <TextBlock FontSize="40"  HorizontalAlignment="Center" VerticalAlignment="Center" Name="PointCounter">?</TextBlock>
-        </StackPanel>
+            <StackPanel Grid.Column="1">
+                <TextBlock FontSize="50" HorizontalAlignment="Center">Points</TextBlock>
+                <TextBlock FontSize="40"  HorizontalAlignment="Center" VerticalAlignment="Center" Name="PointCounter">?</TextBlock>
+            </StackPanel>
 
-    </Grid>
+        </Grid>
+    </Border>
 </Window>

@@ -291,7 +291,7 @@ namespace Tetris
         public void Dispose()
         {
             timer.Dispose();
-            //GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);
         }
 
         public CellType[,] Cells { get; private set; }
@@ -331,17 +331,15 @@ namespace Tetris
         public int ActiveY { get; private set; }
 
         public int Points { get; private set; }
-
         public int LinesCleared { get; private set; }
-        public int TickRate { get; private set; }
-
-        public int ActivePieceType { get; private set; }
-        public int ActiveRotation { get; private set; }
-
+        private int ActivePieceType { get; set; }
+        private int ActiveRotation { get; set; }
         public int ActivePiece => pieces[ActivePieceType][ActiveRotation];
+        
+        //Can be simplified
         public GameState GameState { get; private set; }
 
-
+        //Reminder:
         //X is Mirrored, Y is not
         private static readonly int[][] pieces = new int[][]
             {
@@ -372,7 +370,7 @@ namespace Tetris
             new int[]
             {
                 0B_0000_0001_0111_0000,
-                0B_0000_0010_0010_0011,
+                0B_0000_0010_0010_0011,4
                 0B_0000_0000_0111_0100,
                 0B_0000_0110_0010_0010,
             },
